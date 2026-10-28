@@ -1,137 +1,171 @@
-# CORE 论文 Case Study 代码集
+<div align="center">
 
-> **论文**：《CORE: Toward Ubiquitous 6G Intelligence Through Collaborative Orchestration of Large Language Model Agents Over Hierarchical Edge》
-> (Yu Zitong et al., BUPT, arXiv:2601.21822v1)
->
-> 本文件夹整理了与论文 **第 IV 节 Case Study**（图 3：无人机高速车辆起火应急救援）直接相关的全部代码，按论文框架结构编号组织，便于对照阅读。**所有代码均为原样拷贝，未做任何逻辑修改。**
+# CORE: Toward Ubiquitous 6G Intelligence Through Collaborative<br>Orchestration of Large Language Model Agents Over Hierarchical Edge
 
----
+**Zitong Yu**<sup>1</sup> &nbsp;
+**Boquan Sun**<sup>1</sup> &nbsp;
+**Yang Li**<sup>1</sup> &nbsp;
+**Zheyan Qu**<sup>1</sup> &nbsp;
+**Xing Zhang**<sup>1†</sup>
 
-> **部署与启动顺序**：见 [DEPLOYMENT.md](./DEPLOYMENT.md)（ES → LLM 服务 → 能力注册 → 主服务 → 测试）。
+<sup>1</sup>Beijing University of Posts and Telecommunications, Beijing, China
 
-## 一、论文 Case 与代码的总体对应关系
+<sup>†</sup>Corresponding author
 
-论文 Case 描述的场景是：**高速公路车辆起火事故**的实时应急分析。CORE 平台接收用户上传的起火视频后，进行多模态感知（视频、地理、气象）→ 任务分解（DAG）→ 多个专职 Agent 并行/串行协作执行 → 生成综合应急响应报告。
+[![DOI](https://img.shields.io/badge/DOI-10.1109%2FMCOM.001.2500469-blue.svg)](https://doi.org/10.1109/MCOM.001.2500469)
+![Publication](https://img.shields.io/badge/IEEE%20Communications%20Magazine-May%202026-0077b5.svg)
+![Topic](https://img.shields.io/badge/topic-6G%20%7C%20LLM%20Agents%20%7C%20Edge%20Intelligence-008678.svg)
 
+</div>
+
+<p align="center">
+  <img src="assets/framework.png" width="100%" alt="CORE framework: feedback and optimization, primary service, and 6G infrastructure layers">
+</p>
+
+<p align="center"><em>
+Fig. 2. The three-layer CORE architecture. A feedback and optimization layer supports evaluation, memory, and self-evolution; the primary service layer integrates multimodal perception, dynamic role orchestration and scheduling, and pipeline-parallel tool execution; and the 6G infrastructure layer supplies sensing, communication, and computation capabilities.
+</em></p>
+
+## News
+
+- **2026-05**: CORE was published in *IEEE Communications Magazine*, Vol. 64, No. 5, pp. 28–34. [Paper / DOI](https://doi.org/10.1109/MCOM.001.2500469).
+
+## Highlights
+
+Ubiquitous intelligence in 6G depends on AI agents operating across mobile devices, edge servers, and cloud infrastructure. Yet their computing resources are fragmented and heterogeneous: centralized LLM processing may introduce excessive network latency, while a single resource-constrained device may be unable to handle complex reasoning. We present **Collaborative Orchestration Role at Edge (CORE)**, a collaborative, role-based LLM-agent framework designed to exploit hierarchical edge resources for more efficient task execution.
+
+- **Distributed, specialized LLM agents.** CORE places agents with distinct functional roles across mobile devices and tiered edge servers. Complex requests are decomposed into manageable subtasks and assigned to agents according to their capabilities and available resources.
+- **Three complementary optimization mechanisms.** Real-time multimodal perception identifies context and anomalies; dynamic role orchestration organizes and assigns work; and pipeline-parallel execution accelerates dependent tool workflows using directed acyclic graphs (DAGs) and the Model Context Protocol (MCP).
+- **Role-affinity scheduling and practical validation.** CORE matches task demands to device and network conditions through role-affinity scheduling. Evaluations on emergency-related tasks, together with a real edge-computing deployment, show improved task completion and lower latency relative to evaluated baselines.
+
+## How it works
+
+### From heterogeneous 6G devices to collaborative intelligence
+
+<p align="center">
+  <img src="assets/applications.png" width="78%" alt="LLM-based agents cooperating across 6G application scenarios">
+</p>
+
+<p align="center"><em>
+Fig. 1. Examples of multi-agent intelligence over 6G, including earthquake rescue, fire emergency response, mountain research, and power inspection. Mobile agents, edge agents, UAVs, and other nodes share tasks over the network.
+</em></p>
+
+CORE has **three architectural layers**, as illustrated by the framework figure at the top of this README:
+
+- **Feedback and Optimization Layer.** Task evaluation, reflection and optimization, short-term memory, long-term memory, and self-evolution preserve useful experience and support iterative improvements to the orchestration process.
+- **Primary Service Layer.** Multimodal perception, dynamic role orchestration and scheduling, retrieval-augmented generation, and pipeline-parallel task execution implement the main agent workflow.
+- **6G Infrastructure Layer.** Underlying 6G capabilities—including integrated sensing and communication (ISAC), ultra-reliable low-latency communication (URLLC), digital twins, massive MIMO / reconfigurable intelligent surfaces (RIS), and millimeter-wave / terahertz systems—support distributed sensing and communication.
+
+**Multimodal perception.** Mobile agents process input such as video, images, locations, and text. They extract scene information, recognize abnormal events, and transform observations into actionable descriptions or instructions for downstream agents.
+
+**Task decomposition and dynamic role orchestration.** An edge-side orchestration agent decomposes a request into subtasks, organizes their dependencies, and selects appropriate specialized roles—such as VideoAgent, MapAgent, MeteorologyAgent, and ReportAgent. Retrieval-augmented generation enables the orchestrator to consult external knowledge as tasks are planned.
+
+**Role-affinity scheduling.** CORE considers task complexity, data volume, timing requirements, network bandwidth and latency, reliability, and the compute, memory, and energy characteristics of candidate devices. Its scheduling mechanism aims to place compute-heavy operations on suitable edge servers while preserving lightweight operations near their data sources. It also supports reassignment when resources become overloaded. The paper discusses using historical data and offline digital-twin simulations to guide latency-sensitive scheduling decisions without costly online simulation in every decision cycle.
+
+**Pipeline-parallel execution with MCP.** A task graph encodes which operations depend on one another, allowing independent subtasks and tool calls to run concurrently. DAGs specify execution dependencies, while MCP supports context exchange and tool integration across heterogeneous agents and services.
+
+**Evaluation and feedback.** After execution, the evaluation agent checks the results, triggers replanning when needed, and feeds the outcome back into memory and optimization components.
+
+## Case study: emergency-response orchestration
+
+<p align="center">
+  <img src="assets/case.png" width="100%" alt="CORE emergency-response case study: perception, decomposition, parallel subtasks, and evaluation">
+</p>
+
+<p align="center"><em>
+Fig. 3. A vehicle-fire incident is handled through multimodal perception, task decomposition and scheduling, pipeline-parallel execution by specialized agents, and final evaluation and optimization.
+</em></p>
+
+A video-based vehicle-fire alert provides an example of CORE's end-to-end workflow. The perception agent interprets the scene; the edge orchestrator determines the required response; and specialized agents analyze the video, retrieve geographical and traffic information, evaluate local weather conditions, and assemble an emergency report. Independent work can be performed in parallel before the final report is generated. The evaluation stage can flag missing information and send an affected step back for correction.
+
+## Performance evaluation
+
+The paper evaluates **task completion rate** and **latency**. Its task set uses an open-source fire / fire-gas video dataset and 300 task instructions generated with a large language model and manually curated. The difficulty tiers are defined by the number of tools required: **Easy (0–3), Medium (4–6), and Hard (7–9)**. Baselines include the single-agent methods **ReAct** and **LLMCompiler** and multi-agent alternatives **Static_Dual_Loop** and **Crew_Ai**.
+
+### Higher task completion rate
+
+<p align="center">
+  <img src="assets/success_rate.png" width="80%" alt="Figure 4: task completion rates for five methods at three difficulty levels">
+</p>
+
+<p align="center"><em>
+Fig. 4. Task completion rate comparison across task difficulties. CORE achieves the highest rate at each difficulty level in the reported evaluation.
+</em></p>
+
+| Scheme | Easy (0–3 tools) | Medium (4–6 tools) | Hard (7–9 tools) |
+|---|---:|---:|---:|
+| ReAct | ≈63% | ≈37% | ≈5% |
+| LLMCompiler | ≈67% | ≈50% | ≈27% |
+| Static_Dual_Loop | ≈73% | ≈60% | ≈43% |
+| Crew_Ai | ≈70% | ≈58% | ≈30% |
+| **Proposed CORE** | **≈75%** | **≈65%** | **≈52%** |
+
+*Percentages are approximate visual readings of Fig. 4, not exact values from a published numerical table.*
+
+Task completion declines as tasks require more tools, but CORE maintains a lead over the compared approaches. The authors attribute this improvement to dynamic task decomposition, specialized agents, and adaptive role scheduling rather than a fixed arrangement of roles.
+
+### Lower scheduling and end-to-end latency
+
+<p align="center">
+  <img src="assets/latency.png" width="100%" alt="Figure 6: scheduling latency under varying loads and end-to-end latency by tool count">
+</p>
+
+<p align="center"><em>
+Fig. 6. (a) Total latency under low, medium, and high workload conditions for DynaRole-HEFT, traditional HEFT, and static allocation. (b) End-to-end latency versus the number of tools for CORE and alternative role/scheduling combinations.
+</em></p>
+
+The paper reports that **DynaRole-HEFT**—the role-aware scheduling approach used with CORE—reduces high-load latency by **52% relative to traditional HEFT**. Across workflows involving two to eight tools, **CORE + DynaRole-HEFT** also records the lowest end-to-end latency among the plotted strategies. Parallel task execution and affinity-aware resource placement contribute to the difference. At the same time, the paper notes that orchestrator inference remains a nontrivial source of delay.
+
+### Real-world deployment
+
+<p align="center">
+  <img src="assets/platform.png" width="100%" alt="Figure 5: deployed CORE real-time anomaly detection platform interface">
+</p>
+
+<p align="center"><em>
+Fig. 5. The CORE real-time anomaly-detection platform brings together distributed-network monitoring, multimodal video analysis, role-agent execution, resource utilization, and alert messages.
+</em></p>
+
+The reported deployment uses **DeepSeek-R1-Distill-Llama-70B** for orchestration on **eight NVIDIA A40 GPUs (48 GB VRAM each)**. At the edge, **MiniCPM-v2.6 (8B)** runs on systems equipped with **NVIDIA RTX 3090 and RTX 4090 GPUs**. MCP supports information exchange and tool coordination across the deployment. The platform demonstrates how CORE integrates video-event analysis, agent task execution, and network-resource monitoring in an operational setting.
+
+## Beyond the case study
+
+The architecture targets a wider range of 6G-enabled settings, including smart-city monitoring, industrial automation, healthcare, and space–air–ground communications. These are application opportunities discussed in the paper, not separate experimentally validated deployments of CORE in every domain.
+
+## Open challenges and future directions
+
+- **LLM inference versus strict real-time requirements.** Some URLLC applications demand sub-millisecond response times, whereas LLM inference is far slower. The paper advocates a hybrid approach in which LLMs provide higher-level decisions while lightweight, predictable components handle immediate safety-critical control.
+- **Scheduling overhead.** Orchestrator inference is reported at approximately **180–320 ms**, accounting for a substantial share of delay under high-load conditions. Lightweight schedulers and model specialization remain important research directions.
+- **Heterogeneous-device constraints.** Memory capacity, computational power, energy consumption, and variable network conditions complicate role placement and generalization to additional hardware.
+- **Reliability and interoperability.** Inconsistent agent outputs, inter-node synchronization, heterogeneous APIs, and cross-device communication can introduce failures. More robust coordination and standardized interfaces remain necessary.
+- **Scaling and network integration.** The paper identifies model distillation, tighter coupling with 6G network slicing, improved scheduling strategies, and stronger communication standardization as directions for future work.
+
+## Copyright
+
+© 2026 IEEE. The research figures included here were extracted from the user-provided paper for this research README. The publication and its figures remain subject to the publisher's applicable copyright and reuse permissions.
+
+## Acknowledgment
+
+This work was supported by the **National Science Foundation of China**, Grant **62271062**.
+
+## Citation
+
+If you find this work useful, please cite:
+
+```bibtex
+@article{yu2026core,
+  title   = {CORE: Toward Ubiquitous 6G Intelligence Through Collaborative Orchestration of Large Language Model Agents Over Hierarchical Edge},
+  author  = {Yu, Zitong and Sun, Boquan and Li, Yang and Qu, Zheyan and Zhang, Xing},
+  journal = {IEEE Communications Magazine},
+  volume  = {64},
+  number  = {5},
+  pages   = {28--34},
+  month   = {May},
+  year    = {2026},
+  doi     = {10.1109/MCOM.001.2500469}
+}
 ```
-用户(起火视频+请求)
-        │
-        ▼
-┌─────────────────────────────────────────────┐
-│  平台服务层 (1_platform_server/main.py)      │  ← WebSocket 编排服务器，论文 Fig.5 平台界面后端
-│  ├─ 闲聊/低置信度兜底                          │
-│  ├─ 任务分解与工作流匹配 (2_orchestration)     │  ← 论文 Fig.3 步骤②③
-│  └─ 角色亲和调度 (2_orchestration/routing.py) │  ← 论文 III-D Role Affinity Scheduling
-├─────────────────────────────────────────────┤
-│  专职角色 Agent (3_agent_configs)             │
-│  ├─ KeyframeAgent  抽取关键帧                │  ← 视频感知
-│  ├─ VideoAgent      视频理解/异常检测         │  ← 车辆起火识别
-│  ├─ MapAgent        地理路线分析              │  ← 事故定位/救援路径
-│  ├─ MeteorologyAgent 气象信息分析            │  ← 风向/天气对火势影响
-│  └─ ReportAgent     生成应急报告              │  ← 最终响应方案
-├─────────────────────────────────────────────┤
-│  执行引擎 (7_execution_engines)               │
-│  ├─ llm_compiler/  流水线并行执行 (DAG)      │  ← 论文 III-C Pipeline-parallel Execution
-│  └─ react/          ReAct 基线引擎           │  ← 论文对比基线 [1]
-└─────────────────────────────────────────────┘
-```
 
-## 二、目录详解（按编号）
+## Contact
 
-### `1_platform_server/` — CORE 平台服务入口（论文 Fig.5、Section IV 部署）
-
-| 文件 | 说明 | 对应论文内容 |
-|---|---|---|
-| `main.py` | FastAPI + WebSocket 编排服务器主入口。完整实现：闲聊快速通道 → Workflow 任务分解匹配 → ES 角色路由 → Query 改写 → Agent 执行 → 结果归一化 → 流式推送 | Primary Service Layer（论文 III-A）；实时异常检测平台（论文 Fig.5） |
-| `run_single_agent.py` | 单 Agent 调试/执行入口，封装 `process_agent_request()`，支持 ReAct 与 LLMCompiler 两种引擎 | Agent 执行运行时 |
-| `openclaw_client.py` | 对接 OpenClaw 技能服务的客户端 | Model Context Protocol (MCP) 的外部工具接入（论文 III-B） |
-| `start.sh` | 服务启动脚本示例 | — |
-
-### `2_orchestration/` — 动态角色编排与角色亲和调度（论文 III-C / III-D）
-
-| 文件 | 说明 | 对应论文内容 |
-|---|---|---|
-| `routing.py` | **Role Affinity Scheduling 核心实现**：从 ES 能力注册表混合检索（BM25+向量）候选 Agent，计算语义分 sem_score 与网络状态分 net_score（0.7×延迟 + 0.3×队列），加权融合后选出最优角色，含低置信度回退 | 论文 III-D Role Affinity Scheduling Algorithm；Fig.3 中 agent 候选打分 |
-| `workflows.py` | 5 条案例工作流的 DAG 定义，如 `wf_video_keyframe_report`（关键帧→视频分析→报告）、`wf_map_meteo_report`（地理→气象→报告） | 论文 III-C 任务分解为 DAG；Fig.3 步骤②任务分解 |
-| `workflow_router.py` | 根据用户输入与是否上传视频，动态匹配工作流 | Dynamic Role Orchestration（论文 III-A） |
-| `normalize.py` / `media.py` / `utils.py` | Agent 输出归一化（抽取最佳文本/图片）、媒体 URL 构建、通用工具 | Feedback and Optimization Layer 的结果评估部分（论文 III-A） |
-
-### `3_agent_configs/` — 五个专职角色 Agent 的配置（论文 Fig.3 Case 的执行角色）
-
-每个子目录包含 `configs.py`（模型与参数）、`tools.py`（可用工具声明）、`gpt_prompts.py` / `llama_prompts.py`（角色提示词）：
-
-| Agent | 职责 | Case 中的作用 |
-|---|---|---|
-| `VideoAgent/` | 视频理解、异常检测 | 识别车辆起火事故（FURG fire dataset 场景） |
-| `KeyframeAgent/` | 关键帧抽取与识别 | 抽取起火关键画面供后续分析 |
-| `MapAgent/` | 地理信息与路径分析 | 事故定位、救援路线规划 |
-| `MeteorologyAgent/` | 气象数据查询 | 风向/天气对火势与救援的影响评估 |
-| `ReportAgent/` | 报告生成 | 汇总上述结果，输出中文应急报告 |
-
-### `4_capability_registry/` — 能力注册表构建（角色亲和调度的数据基础）
-
-| 文件 | 说明 |
-|---|---|
-| `build_registry.py` | 将各 Agent 的能力描述、工具、模型规格构建为结构化注册表 |
-| `langchain_es_bm25_demo.py` | `CapabilityHybridRetriever`：Elasticsearch BM25 + 向量混合检索实现，`routing.py` 直接依赖 |
-| `load_agents_to_es.py` | 将能力注册表批量写入 ES 索引 `capability_registry` |
-
-论文 III-D 中"任务需求、网络状况、设备能力"的匹配计算，其检索基础即来自这里构建的注册表。
-
-### `5_services/` — 服务层逻辑
-
-| 文件 | 说明 |
-|---|---|
-| `query_rewrite.py` | LLM 将用户请求改写为选中 Agent 的执行 prompt（上下文感知的任务下发） |
-| `task_processing.py` | 调用 `run_single_agent.process_agent_request()` 执行任务，并从 logs/scratchpad 中抽取最终答案 |
-| `rag_retrieval.py` | 基础 RAG 检索（旧版路由兼容） |
-
-### `6_agent_tools/` — Agent 底层工具实现（各角色真正调用的能力）
-
-| 文件 | 对应角色 |
-|---|---|
-| `Video_Understanding.py` | VideoAgent — 视频理解 |
-| `KeyframeExtractor.py` / `KeyframeRecognition.py` | KeyframeAgent — 关键帧抽取/识别 |
-| `Map.py` | MapAgent — 地图与路线 |
-| `Meteorology.py` | MeteorologyAgent — 气象查询 |
-| `Report.py` | ReportAgent — 报告生成/写文件 |
-| `TavilySearch.py` / `wikipedia.py` | 外部知识检索（RAG 增强） |
-| `media.py` | 媒体文件处理 |
-
-### `7_execution_engines/` — 任务执行引擎
-
-| 目录 | 说明 | 对应论文内容 |
-|---|---|---|
-| `llm_compiler/` | LLMCompiler 实现：planner（任务规划为 DAG）、task_fetching_unit（依赖满足即并行取任务）、output_parser | 论文 III-C **Pipeline-parallel Execution**（DAG + 并行函数调用），也是论文基线 [2] |
-| `react/` | ReAct Agent 实现（推理+行动循环） | 论文对比基线 [1] |
-
-### `8_framework_runtime/` — 框架支撑代码
-
-`agents/`（Agent 封装）、`chains/`（LLM 链）、`executors/`（Agent 执行器）、`tools/`（工具基类）、`callbacks/`（统计回调，用于实验指标收集）、`utils/`（模型接入、日志、评估、计时）。其中 `utils/evaluation_utils.py` 与 `callbacks/callbacks.py` 支撑论文中的**任务完成率与延迟指标统计**。
-
-## 三、论文实验部署环境 与 代码的对应
-
-| 论文描述 | 代码/仓库位置（yzt_source 下） |
-|---|---|
-| 调度器 DeepSeek-R1-distill-llama-70B（8×A40） | 通过 `vllm/` 仓库部署 vLLM 服务；`8_framework_runtime/utils/model_utils.py` 中 `get_model()` 接入（openai 兼容接口） |
-| 边缘端 MiniCPM-v2.6 (8B)（3090/4090） | `MiniCPM-V/` 仓库（模型权重与推理代码） |
-| MCP 跨域协作 | `1_platform_server/openclaw_client.py`（OpenClaw 技能对接）+ llm_compiler 的任务传递机制 |
-| 基线 LLMCompiler [2] | `LLMCompiler/`、`Raw_llmcompiler/`（开源仓库原版，未拷贝进本文件夹） |
-| 基线 CrewAI [3] | `crewai/`（开源仓库，未拷贝进本文件夹） |
-| 数据集 FURG fire dataset + 300 条任务指令 | 车辆起火视频经 `KeyframeAgent`/`VideoAgent` 处理（见 `6_agent_tools/`） |
-
-## 四、Case 单次执行的阅读路径（推荐顺序）
-
-1. `1_platform_server/main.py` → `pipeline_stream()`：看请求如何进入
-2. `2_orchestration/workflows.py` + `workflow_router.py`：看"起火视频分析"如何被分解为 Keyframe→Video→Report 的 DAG
-3. `2_orchestration/routing.py`：看角色亲和调度如何打分选角色
-4. `5_services/query_rewrite.py` → `task_processing.py`：看任务如何改写并下发
-5. `3_agent_configs/*/` + `6_agent_tools/`：看各角色如何实际执行（视频/地图/气象/报告）
-6. `7_execution_engines/llm_compiler/`：看子任务如何流水线并行
-7. `1_platform_server/main.py` `normalize_agent_result()`：看结果如何归一化推送回用户
-
-## 五、未拷贝进本文件夹的相关内容
-
-- `LLMCompiler/`、`crewai/`、`vllm/`、`MiniCPM-V/`：体量较大的开源参考仓库，保留在 `yzt_source/` 原位置，见上表对应关系。
-- `AgentDNS/`：与本文件夹内容同源的另一份项目副本。
-- `SPA/`、`AssistGen/`、`LLM-learning/`、`RL_learning/`、`ReAct/`：与本论文 case 无直接关系。
+For correspondence about this work, please contact **Xing Zhang** (zhangx@ieee.org), or the first author **Zitong Yu** (yztong@bupt.edu.cn).
